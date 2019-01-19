@@ -21,9 +21,9 @@ Terraform configuration for deploying Nginx ingress controller in a Kubernetes c
 The following prerequisites need to be installed and configured:
 
 - [Terraform](https://www.terraform.io/downloads.html)
-- [Google Cloud SDK](https://cloud.google.com/sdk/install) (run `gcloud components update` to update SDK to the latest version if you have it already installed)
+- [Google Cloud SDK](https://cloud.google.com/sdk/install) (run `gcloud components update` to update SDK to the latest version if you already have it installed)
 - GKE cluster must be created (you may use [this Terraform configuration](https://github.com/Wi3ard/gke-cluster-terraform) to create it)
-- [Helm](https://helm.sh/) need to be installed in the Kubernetes cluster
+- [Helm](https://helm.sh/) needs to be installed in the Kubernetes cluster
 
 ### GCE configuration
 
