@@ -117,6 +117,9 @@ defaultBackend:
       nginx.ingress.kubernetes.io/ssl-redirect: "true"
       nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
       nginx.ingress.kubernetes.io/from-to-www-redirect: "true"
+# Uncomment if you have GitLab installed.
+# tcp:
+#   22: "gitlab/gitlab-gitlab-shell:22"
 EOF
   ]
 }
