@@ -3,7 +3,6 @@
 - [Nginx ingress controller for Kubernetes](#nginx-ingress-controller-for-kubernetes)
   - [Features](#features)
   - [Before you begin](#before-you-begin)
-    - [GCE configuration](#gce-configuration)
   - [Terraform initialization](#terraform-initialization)
   - [Installation](#installation)
   - [Uninstall and cleanup](#uninstall-and-cleanup)
@@ -12,26 +11,18 @@ Terraform configuration for deploying Nginx ingress controller in a Kubernetes c
 
 ## Features
 
-- [X] GKE support.
-- [x] Automatic DNS management using Google Cloud DNS.
-- [X] Let's Encrypt wildcard certificate generation using [cert-manager](https://cert-manager.readthedocs.io/en/latest/).
+- [X] EKS support.
+- [X] Let's Encrypt certificates generation using [cert-manager](https://cert-manager.readthedocs.io/en/latest/).
+- [X] NO DNS providers support.
 
 ## Before you begin
+
+TODO: Add AWS EKS prerequisites
 
 The following prerequisites need to be installed and configured:
 
 - [Terraform](https://www.terraform.io/downloads.html)
-- [Google Cloud SDK](https://cloud.google.com/sdk/install) (run `gcloud components update` to update SDK to the latest version if you already have it installed)
-- GKE cluster must be created (you may use [this Terraform configuration](https://github.com/Wi3ard/gke-cluster-terraform) to create it)
 - [Helm](https://helm.sh/) needs to be installed in the Kubernetes cluster
-
-### GCE configuration
-
-`GCE_SERVICE_ACCOUNT_FILE` environment variable must be configured to point to GCE JSON key file. For example (PowerShell):
-
-```powershell
-$env:GCE_SERVICE_ACCOUNT_FILE = "C:/mykeys/gce-default.json"
-```
 
 ## Terraform initialization
 
