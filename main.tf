@@ -82,20 +82,29 @@ resource "helm_release" "nginx_ingress" {
   values = [<<EOF
 controller:
   autoscaling:
-    enabled: true
-    minReplicas: 2
-    maxReplicas: 10
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 20
     targetCPUUtilizationPercentage: 50
     targetMemoryUtilizationPercentage: 50
+  config:
+    use-forwarded-headers: "false"
+    use-proxy-protocol: "true"
   extraArgs:
     default-ssl-certificate: "kube-system/${local.dns_zone_name}-tls"
+  publishService:
+    enabled: "true"
   resources:
     limits:
-      cpu: 100m
-      memory: 64Mi
+      cpu: 250m
+      memory: 400Mi
     requests:
       cpu: 100m
-      memory: 64Mi
+      memory: 200Mi
+  service:
+    annotations:
+      service.beta.kubernetes.io/aws-load-balancer-proxy-protocol: '*'
+    externalTrafficPolicy: "Local"
 defaultBackend:
   service:
     annotations:
@@ -103,9 +112,6 @@ defaultBackend:
       nginx.ingress.kubernetes.io/ssl-redirect: "true"
       nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
       nginx.ingress.kubernetes.io/from-to-www-redirect: "true"
-# Uncomment if you have GitLab installed.
-# tcp:
-#   22: "gitlab/gitlab-gitlab-shell:22"
 EOF
   ]
 }
