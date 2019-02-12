@@ -83,10 +83,10 @@ resource "helm_release" "nginx_ingress" {
 controller:
   autoscaling:
     enabled: false
-    minReplicas: 1
-    maxReplicas: 20
-    targetCPUUtilizationPercentage: 50
-    targetMemoryUtilizationPercentage: 50
+    minReplicas: 4
+    maxReplicas: 12
+    targetCPUUtilizationPercentage: 75
+    targetMemoryUtilizationPercentage: 75
   config:
     use-forwarded-headers: "false"
     use-proxy-protocol: "true"
