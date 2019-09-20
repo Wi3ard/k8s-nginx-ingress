@@ -2,10 +2,4 @@ acme_email = "admin@example.com"
 
 domain_name = "example.com"
 
-dns_zone_name = "example-com"
-
-google_application_credentials = "/path/to/gcs-key.json"
-
-google_project_id = "example-0"
-
 region = "us-central1"

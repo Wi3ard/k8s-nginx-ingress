@@ -12,21 +12,6 @@ variable "domain_name" {
   type        = string
 }
 
-variable "dns_zone_name" {
-  description = "The unique name of the zone hosted by Google Cloud DNS"
-  type        = string
-}
-
-variable "google_application_credentials" {
-  description = "Path to GCE JSON key file (used in k8s secrets for accessing GCE resources). Normally equals to GOOGLE_APPLICATION_CREDENTIALS env var value."
-  type        = string
-}
-
-variable "google_project_id" {
-  description = "GCE project ID"
-  type        = string
-}
-
 variable "region" {
   default     = "us-central1"
   description = "Region to create resources in"
@@ -38,7 +23,8 @@ variable "region" {
  */
 
 locals {
-  module_path = replace(path.module, "\\", "/")
+  dns_zone_name = "${replace(var.domain_name, ".", "-")}"
+  module_path   = replace(path.module, "\\", "/")
 }
 
 /*
@@ -105,16 +91,24 @@ controller:
   config:
     use-forwarded-headers: "true"
   extraArgs:
-    default-ssl-certificate: "kube-system/${var.dns_zone_name}-tls"
+    default-ssl-certificate: "kube-system/${local.dns_zone_name}-tls"
+  metrics:
+    enabled: true
+    service:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "10254"
   publishService:
-    enabled: "true"
+    enabled: true
   resources:
     limits:
       cpu: 200m
-      memory: 128Mi
+      memory: 256Mi
     requests:
       cpu: 100m
-      memory: 64Mi
+      memory: 128Mi
+  stats:
+    enabled: true
   service:
     annotations:
       service.beta.kubernetes.io/external-traffic: OnlyLocal
@@ -143,31 +137,6 @@ data "kubernetes_service" "nginx_ingress_controller" {
   }
 }
 
-# DNS zone managed by Google Cloud DNS.
-data "google_dns_managed_zone" "default" {
-  name = var.dns_zone_name
-}
-
-# Root A record.
-resource "google_dns_record_set" "a_root" {
-  name         = "${var.domain_name}."
-  managed_zone = data.google_dns_managed_zone.default.name
-  type         = "A"
-  ttl          = 300
-
-  rrdatas = [data.kubernetes_service.nginx_ingress_controller.load_balancer_ingress[0].ip]
-}
-
-# Wildcard A record.
-resource "google_dns_record_set" "a_wildcard" {
-  name         = "*.${var.domain_name}."
-  managed_zone = data.google_dns_managed_zone.default.name
-  type         = "A"
-  ttl          = 300
-
-  rrdatas = [data.kubernetes_service.nginx_ingress_controller.load_balancer_ingress[0].ip]
-}
-
 # cert-manager helm chart.
 resource "helm_release" "cert_manager" {
   chart         = "stable/cert-manager"
@@ -181,8 +150,7 @@ resource "helm_release" "cert_manager" {
 ingressShim:
   defaultIssuerName: "letsencrypt"
   defaultIssuerKind: "ClusterIssuer"
-  defaultACMEChallengeType: "dns01"
-  defaultACMEDNS01ChallengeProvider: "gcs-dns"
+  defaultACMEChallengeType: "http01"
 resources:
   requests:
     cpu: 10m
@@ -191,30 +159,17 @@ EOF
   ]
 }
 
-# Letsencrypt production issuer resources.
-resource "kubernetes_secret" "gcs_service_account" {
-  metadata {
-    name      = "gcs-service-account"
-    namespace = helm_release.cert_manager.metadata[0].namespace
-  }
-
-  data = {
-    gcs.json = file(var.google_application_credentials)
-  }
-}
-
+# Letsencrypt issuer resources.
 data "template_file" "letsencrypt_issuer" {
   template = file("${local.module_path}/templates/letsencrypt-issuer.tpl")
 
   vars = {
-    acme_email                 = var.acme_email
-    gcs_service_account_secret = kubernetes_secret.gcs_service_account.metadata[0].name
-    google_project_id          = var.google_project_id
-    namespace                  = helm_release.cert_manager.metadata[0].namespace
-    name                       = "letsencrypt"
-    # server                     = "https://acme-v02.api.letsencrypt.org/directory"
+    acme_email = var.acme_email
+    namespace  = helm_release.cert_manager.metadata[0].namespace
+    name       = "letsencrypt"
+    server     = "https://acme-v02.api.letsencrypt.org/directory"
     # Uncomment to switch to Letsencrypt staging server.
-    server = "https://acme-staging-v02.api.letsencrypt.org/directory"
+    # server = "https://acme-staging-v02.api.letsencrypt.org/directory"
   }
 }
 
@@ -236,33 +191,33 @@ resource "null_resource" "create_letsencrypt_issuer" {
   }
 }
 
-# Wildcard certificate resource.
-data "template_file" "wildcard_cert" {
-  template = file("${local.module_path}/templates/wildcard-cert.tpl")
+# Default certificate resource.
+data "template_file" "default_cert" {
+  template = file("${local.module_path}/templates/default-cert.tpl")
 
   vars = {
     domain_name   = var.domain_name
-    dns_zone_name = var.dns_zone_name
+    dns_zone_name = local.dns_zone_name
     namespace     = helm_release.cert_manager.metadata[0].namespace
     issuer_name   = "letsencrypt"
   }
 }
 
-resource "local_file" "wildcard_cert" {
-  content  = data.template_file.wildcard_cert.rendered
-  filename = ".terraform/wildcard-cert.yaml"
+resource "local_file" "default_cert" {
+  content  = data.template_file.default_cert.rendered
+  filename = ".terraform/default-cert.yaml"
 }
 
-resource "null_resource" "create_wildcard_cert" {
-  depends_on = [local_file.wildcard_cert]
+resource "null_resource" "create_default_cert" {
+  depends_on = [local_file.default_cert]
 
   provisioner "local-exec" {
-    command     = "kubectl apply -f wildcard-cert.yaml"
+    command     = "kubectl apply -f default-cert.yaml"
     working_dir = ".terraform"
   }
 
   triggers = {
-    config_rendered = data.template_file.wildcard_cert.rendered
+    config_rendered = data.template_file.default_cert.rendered
   }
 }
 

@@ -8,13 +8,12 @@ spec:
   issuerRef:
     name: ${issuer_name}
     kind: ClusterIssuer
-  commonName: '*.${domain_name}'
+  commonName: ${domain_name}
   dnsNames:
   - ${domain_name}
   acme:
     config:
-    - dns01:
-        provider: gcs-dns
+    - http01:
+        ingressClass: nginx
       domains:
-      - '*.${domain_name}'
       - ${domain_name}
