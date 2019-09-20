@@ -27,10 +27,10 @@ The following prerequisites need to be installed and configured:
 
 ### GCE configuration
 
-`GCE_SERVICE_ACCOUNT_FILE` environment variable must be configured to point to GCE JSON key file. For example (PowerShell):
+`GOOGLE_APPLICATION_CREDENTIALS` environment variable must be configured to point to GCE JSON key file. For example (PowerShell):
 
 ```powershell
-$env:GCE_SERVICE_ACCOUNT_FILE = "C:/mykeys/gce-default.json"
+$env:GOOGLE_APPLICATION_CREDENTIALS = "C:/mykeys/gce-default.json"
 ```
 
 ## Terraform initialization
@@ -38,7 +38,7 @@ $env:GCE_SERVICE_ACCOUNT_FILE = "C:/mykeys/gce-default.json"
 Copy [terraform.tfvars.example](terraform.tfvars.example) file to `terraform.tfvars` and set input variables values as per your needs. Then initialize Terraform with `init` command:
 
 ```shell
-terraform init -backend-config "bucket=$BUCKET_NAME" -backend-config "prefix=apps/$CLUSTER_NAME/traefik" -backend-config "region=$REGION"
+terraform init -backend-config "bucket=$BUCKET_NAME" -backend-config "prefix=apps/$CLUSTER_NAME/nginx-ingress"
 ```
 
 - `$REGION` should be replaced with a region name.
