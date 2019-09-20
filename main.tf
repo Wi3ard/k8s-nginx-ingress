@@ -37,23 +37,23 @@ provider "aws" {
 }
 
 provider "helm" {
-  version = "~> 0.7"
+  version = "~> 0.9"
 }
 
 provider "kubernetes" {
-  version = "~> 1.5"
+  version = "~> 1.5.2"
 }
 
 provider "local" {
-  version = "~> 1.1"
+  version = "~> 1.2.1"
 }
 
 provider "null" {
-  version = "~> 2.0"
+  version = "~> 2.1.1"
 }
 
 provider "template" {
-  version = "~> 2.0"
+  version = "~> 2.1.1"
 }
 
 /*
@@ -92,8 +92,16 @@ controller:
     use-proxy-protocol: "true"
   extraArgs:
     default-ssl-certificate: "kube-system/${local.dns_zone_name}-tls"
+  metrics:
+    enabled: true
+    service:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "10254"
+    serviceMonitor:
+      enabled: true
   publishService:
-    enabled: "true"
+    enabled: true
   resources:
     limits:
       cpu: 250m
@@ -101,6 +109,8 @@ controller:
     requests:
       cpu: 100m
       memory: 200Mi
+  stats:
+    enabled: true
   service:
     annotations:
       service.beta.kubernetes.io/aws-load-balancer-proxy-protocol: '*'
