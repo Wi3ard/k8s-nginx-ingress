@@ -76,12 +76,21 @@ terraform destroy
 The `cert-manager` Helm chart included in this plan creates several [Custom Resource Definitions](https://docs.okd.io/latest/admin_guide/custom_resource_definitions.html) that have to be deleted manually:
 
 ```shell
-$ kubectl delete crd certificates.certmanager.k8s.io -n kube-system
-customresourcedefinition.apiextensions.k8s.io "certificates.certmanager.k8s.io" deleted
+$ kubectl delete crd certificaterequests.cert-manager.io
+customresourcedefinition.apiextensions.k8s.io "certificaterequests.cert-manager.io" deleted
 
-$ kubectl delete crd clusterissuers.certmanager.k8s.io -n kube-system
-customresourcedefinition.apiextensions.k8s.io "clusterissuers.certmanager.k8s.io" deleted
+$ kubectl delete crd certificates.cert-manager.io
+customresourcedefinition.apiextensions.k8s.io "certificates.cert-manager.io" deleted
 
-$ kubectl delete crd issuers.certmanager.k8s.io -n kube-system
-customresourcedefinition.apiextensions.k8s.io "issuers.certmanager.k8s.io" deleted
+$ kubectl delete crd challenges.acme.cert-manager.io
+customresourcedefinition.apiextensions.k8s.io "challenges.acme.cert-manager.io" deleted
+
+$ kubectl delete crd clusterissuers.cert-manager.io
+customresourcedefinition.apiextensions.k8s.io "clusterissuers.cert-manager.io" deleted
+
+$ kubectl delete crd issuers.cert-manager.io
+customresourcedefinition.apiextensions.k8s.io "issuers.cert-manager.io" deleted
+
+$ kubectl delete crd orders.acme.cert-manager.io
+customresourcedefinition.apiextensions.k8s.io "orders.acme.cert-manager.io" deleted
 ```

@@ -1,4 +1,4 @@
-apiVersion: certmanager.k8s.io/v1alpha1
+apiVersion: cert-manager.io/v1alpha2
 kind: Certificate
 metadata:
   name: ${dns_zone_name}
@@ -11,9 +11,3 @@ spec:
   commonName: ${domain_name}
   dnsNames:
   - ${domain_name}
-  acme:
-    config:
-    - http01:
-        ingressClass: nginx
-      domains:
-      - ${domain_name}
