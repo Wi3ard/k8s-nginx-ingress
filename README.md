@@ -12,9 +12,9 @@ Terraform configuration for deploying Nginx ingress controller in a Kubernetes c
 
 ## Features
 
-- [X] GKE support.
+- [x] GKE support.
 - [x] Automatic DNS management using Google Cloud DNS.
-- [X] Let's Encrypt wildcard certificate generation using [cert-manager](https://cert-manager.readthedocs.io/en/latest/).
+- [x] Let's Encrypt wildcard certificate generation using [cert-manager](https://cert-manager.readthedocs.io/en/latest/).
 
 ## Before you begin
 
@@ -50,7 +50,7 @@ terraform init -backend-config "bucket=$BUCKET_NAME" -backend-config "prefix=app
 You must install the cert-manager CRDs before applying this Terraform plan:
 
 ```shell
-kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.6/deploy/manifests/00-crds.yaml
+kubectl apply --validate=false -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.12/deploy/manifests/00-crds.yaml
 ```
 
 In order for cert-manager to be able to issue certificates for the webhook before it has started, we must **disable** resource validation on the namespace that cert-manager is running in:

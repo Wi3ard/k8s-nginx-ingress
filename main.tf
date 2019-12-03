@@ -32,8 +32,6 @@ locals {
  */
 
 provider "google" {
-  version = "~> 2.15"
-
   project = var.google_project_id
   region  = var.region
 }
@@ -43,11 +41,11 @@ provider "helm" {
 }
 
 provider "kubernetes" {
-  version = "~> 1.9"
+  version = "~> 1.10"
 }
 
 provider "local" {
-  version = "~> 1.3"
+  version = "~> 1.4"
 }
 
 provider "null" {
@@ -138,12 +136,18 @@ data "kubernetes_service" "nginx_ingress_controller" {
 }
 
 # cert-manager helm chart.
+data "helm_repository" "jetstack" {
+  name = "jetstack"
+  url  = "https://charts.jetstack.io"
+}
+
 resource "helm_release" "cert_manager" {
-  chart         = "stable/cert-manager"
+  chart         = "jetstack/cert-manager"
   force_update  = true
   name          = "cert-manager"
   namespace     = "kube-system"
   recreate_pods = true
+  repository    = data.helm_repository.jetstack.metadata[0].name
   reuse_values  = true
 
   values = [<<EOF
