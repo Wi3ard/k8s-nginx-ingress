@@ -137,40 +137,18 @@ data "kubernetes_service" "nginx_ingress_controller" {
 }
 
 # cert-manager helm chart.
-# data "helm_repository" "jetstack" {
-#   name = "jetstack"
-#   url  = "https://charts.jetstack.io"
-# }
+data "helm_repository" "jetstack" {
+  name = "jetstack"
+  url  = "https://charts.jetstack.io"
+}
 
-# resource "helm_release" "cert_manager" {
-#   chart         = "jetstack/cert-manager"
-#   force_update  = true
-#   name          = "cert-manager"
-#   namespace     = "kube-system"
-#   recreate_pods = true
-#   repository    = data.helm_repository.jetstack.metadata[0].name
-#   reuse_values  = true
-
-#   values = [<<EOF
-# ingressShim:
-#   defaultIssuerName: "letsencrypt"
-#   defaultIssuerKind: "ClusterIssuer"
-#   defaultACMEChallengeType: "http01"
-# resources:
-#   requests:
-#     cpu: 10m
-#     memory: 32Mi
-# EOF
-#   ]
-# }
-
-# cert-manager helm chart.
 resource "helm_release" "cert_manager" {
-  chart         = "stable/cert-manager"
+  chart         = "jetstack/cert-manager"
   force_update  = true
   name          = "cert-manager"
   namespace     = "kube-system"
   recreate_pods = true
+  repository    = data.helm_repository.jetstack.metadata[0].name
   reuse_values  = true
 
   values = [<<EOF
