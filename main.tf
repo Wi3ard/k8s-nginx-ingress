@@ -34,6 +34,7 @@ locals {
 provider "google" {
   project = var.google_project_id
   region  = var.region
+  version = "~> 3.1"
 }
 
 provider "helm" {
@@ -118,9 +119,6 @@ defaultBackend:
       nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
       nginx.ingress.kubernetes.io/from-to-www-redirect: "true"
       nginx.ingress.kubernetes.io/ssl-redirect: "true"
-# Uncomment if you have GitLab installed.
-# tcp:
-#   22: "gitlab/gitlab-gitlab-shell:22"
 EOF
   ]
 }
