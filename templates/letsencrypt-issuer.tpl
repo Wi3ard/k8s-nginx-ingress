@@ -1,4 +1,4 @@
-apiVersion: certmanager.k8s.io/v1alpha1
+apiVersion: cert-manager.io/v1alpha2
 kind: ClusterIssuer
 metadata:
   name: ${name}
@@ -12,4 +12,7 @@ spec:
     privateKeySecretRef:
       name: ${name}-account-key
 
-    http01: {}
+    solvers:
+    - http01:
+        ingress:
+          class: nginx
