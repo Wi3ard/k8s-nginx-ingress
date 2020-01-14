@@ -34,7 +34,7 @@ locals {
 provider "google" {
   project = var.google_project_id
   region  = var.region
-  version = "~> 3.1"
+  version = "~> 3.4"
 }
 
 provider "helm" {

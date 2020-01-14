@@ -4,10 +4,10 @@ metadata:
   name: ${dns_zone_name}
   namespace: ${namespace}
 spec:
-  secretName: ${dns_zone_name}-tls
-  issuerRef:
-    name: ${issuer_name}
-    kind: ClusterIssuer
   commonName: ${domain_name}
   dnsNames:
   - ${domain_name}
+  issuerRef:
+    name: ${issuer_name}
+    kind: ClusterIssuer
+  secretName: ${dns_zone_name}-tls
