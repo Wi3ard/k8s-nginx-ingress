@@ -197,6 +197,38 @@ resource "null_resource" "create_letsencrypt_issuer" {
   }
 }
 
+data "template_file" "gitlab_letsencrypt_issuer" {
+  template = file("${local.module_path}/templates/gitlab-letsencrypt-issuer.tpl")
+
+  vars = {
+    acme_email = var.acme_email
+    namespace  = helm_release.cert_manager.metadata.0.namespace
+    name       = "gitlab-letsencrypt"
+
+    server = "https://acme-v02.api.letsencrypt.org/directory"
+    # Uncomment to switch to Letsencrypt staging server.
+    # server = "https://acme-staging-v02.api.letsencrypt.org/directory"
+  }
+}
+
+resource "local_file" "gitlab_letsencrypt_issuer" {
+  content  = data.template_file.gitlab_letsencrypt_issuer.rendered
+  filename = ".terraform/gitlab-letsencrypt-issuer.yaml"
+}
+
+resource "null_resource" "create_gitlab_letsencrypt_issuer" {
+  depends_on = [local_file.gitlab_letsencrypt_issuer]
+
+  provisioner "local-exec" {
+    command     = "kubectl apply -f gitlab-letsencrypt-issuer.yaml"
+    working_dir = ".terraform"
+  }
+
+  triggers = {
+    config_rendered = data.template_file.gitlab_letsencrypt_issuer.rendered
+  }
+}
+
 # Default certificate resource.
 data "template_file" "default_cert" {
   template = file("${local.module_path}/templates/default-cert.tpl")
